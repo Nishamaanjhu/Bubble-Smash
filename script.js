@@ -9,11 +9,11 @@ let gameInterval;
 let gameDuration = 30; // Game lasts for 30 seconds
 let bubbleSpeed = 5; // Speed of falling bubbles
 let bubbleSpawnRate = 800; // Time in ms between bubble spawns
-let gameActive = true; // Track game state
+let gameActive = true;
 
 // Function to Create Bubble
 function createBubble() {
-    if (!gameActive) return; // Stop spawning if game is over
+    if (!gameActive) return;
 
     const bubble = document.createElement("div");
     bubble.classList.add("bubble");
@@ -23,20 +23,21 @@ function createBubble() {
     bubble.style.width = `${size}px`;
     bubble.style.height = `${size}px`;
 
-    // Random position
+    // Random horizontal position
     const posX = Math.random() * (gameContainer.offsetWidth - size);
     bubble.style.left = `${posX}px`;
 
-    // Set animation duration
+    // Falling animation duration
     const duration = bubbleSpeed + Math.random() * 2;
     bubble.style.animation = `floatDown ${duration}s linear forwards`;
 
-    // Add event listener for click/tap
+    // Click/Tap Event for Scoring
     bubble.addEventListener("click", () => {
-        if (!gameActive) return;
-        score += Math.floor(100 / size); // Smaller bubbles = More points
-        scoreBoard.textContent = `Score: ${score}`;
-        bubble.remove();
+        if (gameActive) {
+            score += Math.floor(100 / size); // Smaller bubble = more points
+            scoreBoard.textContent = `Score: ${score}`;
+            bubble.remove();
+        }
     });
 
     // Remove bubble when animation ends
@@ -47,45 +48,44 @@ function createBubble() {
     gameContainer.appendChild(bubble);
 }
 
-// Function to Start Game
+// Start the Game
 function startGame() {
     score = 0;
     gameActive = true;
     scoreBoard.textContent = `Score: 0`;
-    gameOverScreen.classList.add("hidden");
+    gameOverScreen.classList.remove("show"); // Hide at start
 
-    // Start spawning bubbles
+    // Spawn bubbles repeatedly
     gameInterval = setInterval(createBubble, bubbleSpawnRate);
 
-    // End game after duration
+    // End game after specified duration
     setTimeout(() => {
         endGame();
     }, gameDuration * 1000);
 }
 
-// Function to End Game
+// End the Game
 function endGame() {
     gameActive = false;
     clearInterval(gameInterval);
     finalScore.textContent = score;
-    gameOverScreen.classList.remove("hidden");
+    gameOverScreen.classList.add("show"); // Show popup at the end
 }
 
-// Restart Game
+// Restart the Game
 restartBtn.addEventListener("click", () => {
-    gameOverScreen.classList.add("hidden");
     gameContainer.innerHTML = ""; // Clear bubbles
-    startGame();
+    startGame(); // Restart
 });
 
-// Handle Touch Events (Tap Support for Mobile)
+// Handle Touch Events for Mobile
 gameContainer.addEventListener("touchstart", (e) => {
     const touch = e.touches[0];
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
     if (element && element.classList.contains("bubble")) {
-        element.click();
+        element.click(); // Trigger score on touch
     }
 });
 
-// Start the Game
+// Start Game Initially
 startGame();
